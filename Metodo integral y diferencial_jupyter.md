@@ -5,10 +5,12 @@ from scipy.integrate import ode
 import random
 import matplotlib.pyplot as plt
 %matplotlib inline
+
 # Second cell - Title for Differential Method
 print("="*50)
 print("MÉTODO DIFERENCIAL")
 print("="*50)
+
 # Third cell - Differential Method Functions
 def f(t, Ca, n, k):
     """Reaction rate equation: -dCa/dt = k*Ca^n"""
@@ -45,6 +47,15 @@ def generate_and_analyze_data():
         Ca[i] = r.y[0] + random.uniform(-0.001, 0.001) * r.y[0]  # Add small random noise
         t[i] = r.t
     
+    # Print data table with formatted values
+    print("\nGenerated Data:")
+    print("-------------------------")
+    print("Time (min) | Ca (mol/L)")
+    print("-------------------------")
+    for i in range(len(t)):
+        print(f"{t[i]:9.2f} | {Ca[i]:9.2f}")
+    print("-------------------------")
+    
     return Ca, t, n, k  # Return actual n and k values for comparison
 
 def analyze_differential_method(Ca, t):
@@ -64,6 +75,15 @@ def analyze_differential_method(Ca, t):
     correlation_matrix = np.corrcoef(lnCa_avg, lnr)
     r_squared = correlation_matrix[0,1]**2
     
+    # Print intermediate calculations
+    print("\nIntermediate Calculations:")
+    print("----------------------------------------")
+    print("Ca_avg    | Rate (r) | ln(Ca_avg) | ln(r)")
+    print("----------------------------------------")
+    for i in range(len(Ca_avg)):
+        print(f"{Ca_avg[i]:9.2f} | {r[i]:8.2f} | {lnCa_avg[i]:9.2f} | {lnr[i]:6.2f}")
+    print("----------------------------------------")
+    
     return slope, intercept, r_squared, lnCa_avg, lnr, predicted_lnr
 
 def is_near_integer(slope, tolerance=0.05):
@@ -72,6 +92,7 @@ def is_near_integer(slope, tolerance=0.05):
         return False
     nearest_int = round(slope)
     return abs(slope - nearest_int) <= tolerance
+    
 # Fourth cell - Generate and Analyze Data (Differential Method)
 # Generate data until both conditions are met
 max_attempts = 1000
@@ -127,15 +148,17 @@ plt.text(0.05, 0.95, equation + '\n' + r_squared_text + '\n' + k_text,
 plt.legend()
 plt.grid(True)
 plt.show()
+
 # Sixth cell - Title for Integral Method
 print("="*50)
 print("MÉTODO INTEGRAL")
 print("="*50)
+
 # Seventh cell - Integral Method Functions
 def analyze_integral_method(Ca, t, n_guess):
     """
     Analyze data using integral method for nth order reaction
-    Returns: k, R²
+    Returns: k, R², y, y_pred
     """
     Ca0 = Ca[0]
     
@@ -146,9 +169,16 @@ def analyze_integral_method(Ca, t, n_guess):
         k = -slope
         y_pred = slope * t + intercept
         
-    else:  # n_guess == 2
+    elif n_guess == 2:  # Fixed syntax error here
         # Second order: 1/Ca - 1/Ca0 = kt
         y = 1/Ca - 1/Ca0
+        slope, intercept = np.polyfit(t, y, 1)
+        k = slope
+        y_pred = slope * t + intercept
+        
+    else:  # n_guess == 3
+        # Third order: 1/(2*Ca^2) - 1/(2*Ca0^2) = kt
+        y = 1/(2*Ca**2) - 1/(2*Ca0**2)
         slope, intercept = np.polyfit(t, y, 1)
         k = slope
         y_pred = slope * t + intercept
@@ -159,11 +189,12 @@ def analyze_integral_method(Ca, t, n_guess):
     
     return k, r_squared, y, y_pred
 
-# Test both first and second order
+# Test first, second and third order
 k1, r_squared1, y1, y_pred1 = analyze_integral_method(Ca, t, 1)
 k2, r_squared2, y2, y_pred2 = analyze_integral_method(Ca, t, 2)
+k3, r_squared3, y3, y_pred3 = analyze_integral_method(Ca, t, 3)  # Fixed variable name here
 
-print("Integral Method Results:")
+print("\nIntegral Method Results:")
 print("\nFirst Order Test:")
 print(f"k = {k1:.4f}")
 print(f"R² = {r_squared1:.4f}")
@@ -172,23 +203,39 @@ print("\nSecond Order Test:")
 print(f"k = {k2:.4f}")
 print(f"R² = {r_squared2:.4f}")
 
-# Determine best fit
-if r_squared1 > r_squared2:
-    print("\nBest fit: First Order")
-    best_order = 1
-    best_k = k1
-    best_r_squared = r_squared1
-    y = y1
-    y_pred = y_pred1
-    ylabel = 'ln(Ca/Ca0)'
-else:
-    print("\nBest fit: Second Order")
-    best_order = 2
-    best_k = k2
-    best_r_squared = r_squared2
-    y = y2
-    y_pred = y_pred2
-    ylabel = '1/Ca - 1/Ca0'
+print("\nThird Order Test:")  # Fixed typo here
+print(f"k = {k3:.4f}")
+print(f"R² = {r_squared3:.4f}")  # Fixed variable name here
+
+# Determine best fit among all three orders
+r_squared_values = [r_squared1, r_squared2, r_squared3]
+k_values = [k1, k2, k3]
+y_values = [y1, y2, y3]
+y_pred_values = [y_pred1, y_pred2, y_pred3]
+ylabels = ['ln(Ca/Ca0)', '1/Ca - 1/Ca0', '1/(2Ca²) - 1/(2Ca0²)']
+
+best_index = np.argmax(r_squared_values)
+best_order = best_index + 1
+best_k = k_values[best_index]
+best_r_squared = r_squared_values[best_index]
+y = y_values[best_index]
+y_pred = y_pred_values[best_index]
+ylabel = ylabels[best_index]
+
+print(f"\nBest fit: {best_order}{'st' if best_order == 1 else 'nd' if best_order == 2 else 'rd'} Order")
+print(f"k = {best_k:.4f}")
+print(f"R² = {best_r_squared:.4f}")
+
+# Print data table
+print("\nIntegral Method Data:")
+print("----------------------------------------")
+print("Time (min) | Ca (mol/L) | y")
+print("----------------------------------------")
+for i in range(len(t)):
+    print(f"{t[i]:9.2f} | {Ca[i]:9.2f} | {y[i]:9.2f}")
+print("----------------------------------------")
+
+
 # Eighth cell - Plot Integral Method Results
 plt.figure(figsize=(10, 6))
 plt.scatter(t, y, color='blue', label='Data points')
