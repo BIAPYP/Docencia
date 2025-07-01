@@ -1,1 +1,32 @@
+import numpy as np
+from ipywidgets import interact, FloatSlider
+import matplotlib.pyplot as plt
 
+# Define the thermal conductivity values for different materials (W/mK)
+materials = {
+    'Copper': 401,
+    'Aluminum': 237,
+    'Steel': 50,
+    'Glass': 1.05
+}
+
+# Define constants
+A = 1  # Area in m^2
+r = np.linspace(0, 10, 100)  # Distance in meters
+T0 = 100  # Initial temperature in K
+
+def plot_temperature_profile(heat_flux_total):
+    plt.figure(figsize=(10, 6))
+    for material, k in materials.items():
+        # For constant heat flux, temperature gradient varies with thermal conductivity
+        dT_dr_material = -heat_flux_total / (k * A)
+        T = T0 + dT_dr_material * r
+        plt.plot(r, T, label=f'{material} (k={k} W/mK)')
+    plt.xlabel('Distance (m)')
+    plt.ylabel('Temperature (K)')
+    plt.title('Temperature Profile by Conduction (Constant Heat Flux)')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+interact(plot_temperature_profile, heat_flux_total=FloatSlider(min=0, max=1000, step=10, value=100, description='Heat Flux (W)'))
