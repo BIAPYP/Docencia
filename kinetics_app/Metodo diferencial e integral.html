@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Cinético: Métodos Diferencial e Integral</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-wrapper">
+        <header>
+            <div class="header-content">
+                <div class="header-text">
+                    <h1>Análisis Cinético: Métodos Diferencial e Integral</h1>
+                    <p>Genera datos experimentales cinéticos y determina el orden de reacción (<b>n</b>) y la constante de velocidad (<b>k</b>).</p>
+                </div>
+                <img src="ESCUDO_HORIZONTAL_COLOR.png" alt="Escudo UCM" class="logo">
+            </div>
+        </header>
+
+        <section class="controls panel white-bg">
+            <button id="btn-generate" class="primary-btn">Generar Nuevo Problema</button>
+            <button id="btn-resolve" class="primary-btn hidden" style="background: var(--accent);">Visualizar Resultados</button>
+            <div id="true-params" class="hidden-params white-bg">
+                <!-- Revealed eventually -->
+                <h3>Parámetros Reales Pistas</h3>
+                <p id="params-text">Da click a "Generar" para iniciar.</p>
+                <button id="btn-reveal" class="secondary-btn">Revelar Parámetros Reales</button>
+            </div>
+        </section>
+
+        <div class="split-layout">
+            <!-- Data Section -->
+            <section class="data-section panel white-bg">
+                <h2>Datos Experimentales (C<sub>A</sub> vs t)</h2>
+                <div class="table-container">
+                    <table id="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tiempo (min)</th>
+                                <th>C<sub>A</sub> (mol/L)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows inserted via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Differential Method Section -->
+            <section id="diff-panel" class="diff-method-section panel white-bg hidden">
+                <h2>Método Diferencial</h2>
+                <p>Calcula <b>r</b> y determina el orden <b>n</b> a partir de la pendiente en el gráfico ln(r) vs ln(C<sub>A</sub>).</p>
+                
+                <div class="chart-container">
+                    <canvas id="diff-chart"></canvas>
+                </div>
+                
+                <div class="results-box">
+                    <p>Pendiente (n): <span id="diff-n" class="highlight">-</span></p>
+                    <p>Ordenada (ln(k)): <span id="diff-lnk" class="highlight">-</span> &rarr; k: <span id="diff-k" class="highlight">-</span> <span id="diff-k-units"></span></p>
+                    <p>R²: <span id="diff-r2" class="highlight">-</span></p>
+                </div>
+            </section>
+        </div>
+
+        <div class="full-layout">
+            <!-- Integral Method Section -->
+            <section id="int-panel" class="int-method-section panel white-bg hidden">
+                <h2>Método Integral</h2>
+                <p>Evalúa si la reacción sigue una cinética de orden cero, uno, dos o tres.</p>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" data-order="0">Orden 0 (C<sub>A</sub> vs t)</button>
+                    <button class="tab-btn" data-order="1">Orden 1 (ln(C<sub>A</sub>) vs t)</button>
+                    <button class="tab-btn" data-order="2">Orden 2 (1/C<sub>A</sub> vs t)</button>
+                    <button class="tab-btn" data-order="3">Orden 3 (1/C<sub>A</sub>² vs t)</button>
+                </div>
+                
+                <div class="chart-container int-chart-container">
+                    <canvas id="int-chart"></canvas>
+                </div>
+                
+                <div class="results-box">
+                    <p>Mejor Ajuste según R²: <span id="best-fit-order" class="highlight">-</span></p>
+                    <p>Constante k calculada: <span id="int-k" class="highlight">-</span> <span id="int-k-units"></span></p>
+                    <div class="multi-results">
+                        <div class="res">O-0 R²: <span id="int-r2-0">-</span></div>
+                        <div class="res">O-1 R²: <span id="int-r2-1">-</span></div>
+                        <div class="res">O-2 R²: <span id="int-r2-2">-</span></div>
+                        <div class="res">O-3 R²: <span id="int-r2-3">-</span></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
